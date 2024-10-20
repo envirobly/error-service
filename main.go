@@ -40,6 +40,8 @@ func getStatusMessage(code int) string {
         return "Not Found - Sorry, the page you are looking for doesn't exist."
     case 500:
         return "Internal Server Error - Something went wrong on our side."
+    case 502:
+        return "Bad Gateway - Load balancer can't get a response from the container handling this route. Check the service logs for startup errors."
     default:
         return http.StatusText(code) // Default message from net/http
     }
