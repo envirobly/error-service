@@ -19,7 +19,7 @@ var tmpl = template.Must(template.New("status").Parse(`
     <title>{{.Code}} {{.Message}}</title>
 </head>
 <body>
-    <h1>⚠️ Status Code: {{.Code}}</h1>
+    <h1>⚠️ {{.Code}}</h1>
     <p>{{.Message}}</p>
 </body>
 </html>
@@ -42,6 +42,8 @@ func getStatusMessage(code int) string {
         return "Internal Server Error - Something went wrong on our side."
     case 502:
         return "Bad Gateway - Load balancer can't get a response from the container handling this route. Check the service logs for startup errors."
+    case 503:
+        return "Service Unavailable - Currently there is no service configured to respond to this request."
     default:
         return http.StatusText(code) // Default message from net/http
     }
