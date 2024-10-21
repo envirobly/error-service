@@ -41,7 +41,7 @@ func getStatusMessage(code int) string {
     case 500:
         return "Internal Server Error - Something went wrong on our side."
     case 502:
-        return "Bad Gateway - Load balancer can't get a response from the container handling this route. Check the service logs for startup errors."
+        return "Bad Gateway - Can't get a response from the container handling this route. Check the service logs for startup errors."
     case 503:
         return "Service Unavailable - Currently there is no service configured to respond to this request."
     default:
