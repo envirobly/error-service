@@ -14,13 +14,60 @@ var tmpl = template.Must(template.New("status").Parse(`
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.Code}} {{.Message}}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{.Title}}</title>
+
+  <style type="text/css">
+    html {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      background: hwb(53 96% 10%);
+      color: hwb(53 16% 99%);
+    }
+
+    .message {
+      margin: 4rem auto 0;
+      text-align: center;
+      font-size: 1.3rem;
+      max-width: 30rem;
+    }
+
+    .response-code-and-title {
+      position: relative;
+    }
+
+    .response-code {
+      font-size: 11rem;
+      font-weight: 900;
+      color: hwb(53 96% 27%);
+      margin: 0;
+    }
+
+    .response-title {
+      width: 100%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      margin: 0;
+      font-size: 1.9rem;
+      text-shadow: 0px 0px 0.4rem hwb(53 96% 10%);
+    }
+
+    .explanation {
+      line-height: 1.5;
+      text-wrap: balance;
+    }
+  </style>
 </head>
 <body>
-    <h1>⚠️ {{.Code}}</h1>
-    <p>{{.Message}}</p>
+  <div class="message">
+    <div class="response-code-and-title">
+      <h1 class="response-code">{{.Code}}</h1>
+      <h2 class="response-title">{{.Title}}</h2>
+    </div>
+    <p class="explanation">{{.Message}}</p>
+  </div>
 </body>
 </html>
 `))
@@ -28,24 +75,19 @@ var tmpl = template.Must(template.New("status").Parse(`
 // StatusData holds data to be passed to the template
 type StatusData struct {
     Code    int
+    Title   string
     Message string
 }
 
 // Custom message based on status code
 func getStatusMessage(code int) string {
     switch code {
-    case 200:
-        return "OK - Everything is good!"
-    case 404:
-        return "Not Found - Sorry, the page you are looking for doesn't exist."
-    case 500:
-        return "Internal Server Error - Something went wrong on our side."
     case 502:
-        return "Bad Gateway - Can't get a response from the container handling this route. Check the service logs for startup errors."
+        return "Can't get a response from the container handling this route. Check the service logs for errors."
     case 503:
-        return "Service Unavailable - Currently there is no service configured to respond to this request."
+        return "Currently there is no service configured to respond to this request."
     default:
-        return http.StatusText(code) // Default message from net/http
+        return ""
     }
 }
 
@@ -75,10 +117,12 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 
     // Get the custom message
     message := getStatusMessage(code)
+    title := http.StatusText(code) // Default message from net/http
 
     // Render the HTML template
     data := StatusData{
         Code:    code,
+        Title:   title,
         Message: message,
     }
     if err := tmpl.Execute(w, data); err != nil {
