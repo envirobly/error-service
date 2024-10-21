@@ -1,6 +1,7 @@
 package main
 
 import (
+    "flag"
     "fmt"
     "html/template"
     "log"
@@ -131,7 +132,10 @@ func statusHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+    listenAddress := flag.String("listen-address", ":63108", "Address and port to listen on (e.g., :63108 or 0.0.0.0:63108)")
+    flag.Parse()
+
     http.HandleFunc("/", statusHandler)
-    fmt.Println("Starting server on :8080")
-    log.Fatal(http.ListenAndServe(":8080", nil))
+    fmt.Printf("Listening on %s\n", *listenAddress)
+    log.Fatal(http.ListenAndServe(*listenAddress, nil))
 }
